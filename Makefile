@@ -1,6 +1,9 @@
+DESTDIR =
 PREFIX=/usr/local
+BINDIR = $(DESTDIR)$(PREFIX)/bin
 INSTALL_DIR=$(PREFIX)/bin
 AMBER_SYSTEM=$(INSTALL_DIR)/amber
+INSTALL = /usr/bin/install
 
 OUT_DIR=$(shell pwd)/bin
 AMBER=$(OUT_DIR)/amber
@@ -18,14 +21,17 @@ $(AMBER): $(AMBER_SOURCES) | $(OUT_DIR)
 	@crystal build -o $@ src/amber/cli.cr -p --no-debug
 
 $(OUT_DIR) $(INSTALL_DIR):
-	 @mkdir -p $@
+	@mkdir -p $@
 
 run:
 	$(AMBER)
 
 install: build | $(INSTALL_DIR)
-	@rm -f $(AMBER_SYSTEM)
-	@cp $(AMBER) $(AMBER_SYSTEM)
+	$(INSTALL) -m 0755 -d "$(BINDIR)"
+	$(INSTALL) -m 0755 bin/amber "$(BINDIR)"
+
+uninstall:
+	rm -f "$(BINDIR)/amber"
 
 link: build | $(INSTALL_DIR)
 	@echo "Symlinking $(AMBER) to $(AMBER_SYSTEM)"
@@ -40,3 +46,5 @@ clean:
 
 distclean:
 	rm -rf $(AMBER) .crystal .shards libs lib
+
+test:
